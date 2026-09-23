@@ -1,21 +1,21 @@
 /**
  * ProjectDetail — live folder opens as a centered manila flip book.
  * ---------------------------------------------------------------------------
- * Softboard is gone. Click a live rail folder → it flies to center, expands,
- * expands at viewport center, then unfolds. Each slide is a dual-face sheet
- * hinged at the book spine (full-spread stack). Next / Prev turns one leaf
- * over the spine — mid-turn shows edge, verso, and the page beneath. Counter
- * updates only when the turn settles. Escape / Home: one folder returns.
- * Non-live folders never open. Softboard stays dead.
+ * Softboard is gone. The folder leaves the rail, grows from its center to
+ * the center of the viewport, and only then does the cover hinge open.
+ * One leaf is hinged at the spine: front is the current right-hand media,
+ * back is the next page's text, and the sheet underneath is the next media.
+ * The counter advances when the turn settles, not when Next is pressed.
+ * Escape / Home returns that one folder. Non-live folders never open.
  */
 window.ProjectDetail = (function () {
   'use strict';
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var OPEN_MS = 980;
-  var COVER_AT = 0.55;
-  var CLOSE_MS = 820;
-  var FLIP_MS = 1240;
+  var OPEN_MS = 880;
+  var COVER_MS = 700;
+  var CLOSE_MS = 760;
+  var FLIP_MS = 1120;
 
   function create(options) {
     var panel = options.panel;
@@ -26,10 +26,13 @@ window.ProjectDetail = (function () {
       card: panel.querySelector('[data-detail-card]'),
       title: panel.querySelector('[data-detail-title]'),
       shell: panel.querySelector('[data-case-shell]'),
-      pages: panel.querySelector('[data-case-pages]'),
-      cover: panel.querySelector('[data-case-cover]'),
       book: panel.querySelector('[data-case-book]'),
+      leaf: panel.querySelector('[data-leaf]'),
       leftPage: panel.querySelector('[data-left-page]'),
+      frontPage: panel.querySelector('[data-front-page]'),
+      backPage: panel.querySelector('[data-back-page]'),
+      underPage: panel.querySelector('[data-under-page]'),
+      pageTitle: panel.querySelector('[data-page-title]'),
       faceYear: panel.querySelector('[data-case-face-year]'),
       coverTitle: panel.querySelector('[data-case-cover-title]'),
       coverCat: panel.querySelector('[data-case-cover-cat]')
@@ -49,10 +52,7 @@ window.ProjectDetail = (function () {
       tracking: false,
       pointerId: null,
       startX: 0,
-      armed: null,
-      leaf: null,
-      sheet: null,
-      other: null
+      armed: null
     };
 
     function pad(n) {
@@ -82,16 +82,6 @@ window.ProjectDetail = (function () {
       });
     }
 
-    function leafOf(page) {
-      return page ? page.querySelector('.sheet__leaf') : null;
-    }
-
-    function clearInlineTurn(leaf) {
-      if (!leaf) return;
-      leaf.style.transform = '';
-      leaf.style.transition = '';
-    }
-
     function cancelFlipAnim() {
       clearTimeout(flipTimer);
       flipTimer = null;
@@ -99,17 +89,6 @@ window.ProjectDetail = (function () {
         try { flipAnim.cancel(); } catch (err) {}
         flipAnim = null;
       }
-    }
-
-    function armFlipSettle(leaf, to) {
-      clearTimeout(flipTimer);
-      flipTimer = setTimeout(function () {
-        flipTimer = null;
-        if (mode === 'case' && flipping) {
-          clearInlineTurn(leaf);
-          settleFlip(to);
-        }
-      }, FLIP_MS + 120);
     }
 
     function makeSticky(tools) {
@@ -143,7 +122,7 @@ window.ProjectDetail = (function () {
       var img = document.createElement('img');
       img.src = item.src;
       img.alt = item.alt || '';
-      img.loading = 'lazy';
+      img.loading = 'eager';
       img.decoding = 'async';
       figure.appendChild(img);
       if (item.caption) {
@@ -179,8 +158,8 @@ window.ProjectDetail = (function () {
 
     function makeMediaFace(slide) {
       var front = document.createElement('div');
-      front.className = 'sheet__face sheet__face--front case-page case-page--media';
-      var images = slide.images || [];
+      front.className = 'case-page case-page--media';
+      var images = (slide && slide.images) || [];
       if (!images.length) {
         front.classList.add('is-empty');
         return front;
@@ -195,204 +174,151 @@ window.ProjectDetail = (function () {
       return front;
     }
 
-    function makePage(slide, index, project) {
-      var sheet = document.createElement('article');
-      sheet.className = 'sheet';
-      sheet.setAttribute('data-page', '');
-      sheet.setAttribute('data-index', String(index));
-
-      var sr = document.createElement('span');
-      sr.className = 'visually-hidden';
-      sr.setAttribute('data-page-title', '');
-      writeText(sr, slide.headline || slide.title || project.title);
-      sheet.appendChild(sr);
-
-      var leaf = document.createElement('div');
-      leaf.className = 'sheet__leaf';
-
-      var front = makeMediaFace(slide);
-
-      var back = document.createElement('div');
-      back.className = 'sheet__face sheet__face--back case-page case-page--text';
-      back.setAttribute('aria-hidden', 'true');
-      var next = slides[index + 1];
-      if (next) appendText(back, next, index + 1, project);
-
-      leaf.appendChild(front);
-      leaf.appendChild(back);
-      var thickness = document.createElement('span');
-      thickness.className = 'sheet__thickness';
-      thickness.setAttribute('aria-hidden', 'true');
-      leaf.appendChild(thickness);
-      sheet.appendChild(leaf);
-      return sheet;
-    }
-
-    function paintFace(project) {
-      if (nodes.coverTitle) nodes.coverTitle.textContent = project.title || '';
-      if (nodes.faceYear) nodes.faceYear.textContent = project.year || '';
-      if (nodes.coverCat) nodes.coverCat.textContent = project.category || '';
-      if (nodes.shell) {
-        if (project.tone) nodes.shell.dataset.tone = project.tone;
-        else delete nodes.shell.dataset.tone;
-      }
-    }
-
-    function paintPages(project) {
-      if (!nodes.pages) return;
-      nodes.pages.innerHTML = '';
-      slides.forEach(function (slide, index) {
-        nodes.pages.appendChild(makePage(slide, index, project));
-      });
-    }
-
-    function pageNodes() {
-      if (!nodes.pages) return [];
-      return Array.prototype.slice.call(nodes.pages.querySelectorAll('[data-page]'));
-    }
-
-    function clearSheetClasses(page) {
-      page.classList.remove(
-        'is-active', 'is-below', 'is-turned',
-        'is-flipping', 'is-receiving', 'is-hold'
-      );
-    }
-
     function currentProject() {
       return projects[openIndex] || {};
     }
 
-    function paintLeft(index) {
-      if (!nodes.leftPage) return;
-      nodes.leftPage.textContent = '';
-      var slide = slides[index];
-      var project = currentProject();
-      if (slide) appendText(nodes.leftPage, slide, index, project);
+    function clearSlot(el) {
+      if (!el) return;
+      el.textContent = '';
+    }
+
+    function fillText(el, slide, index) {
+      if (!el) return;
+      el.textContent = '';
+      if (!slide) return;
+      el.classList.add('case-page', 'case-page--text');
+      appendText(el, slide, index, currentProject());
+    }
+
+    function fillMedia(el, slide) {
+      if (!el) return;
+      el.textContent = '';
+      el.appendChild(makeMediaFace(slide || {}));
     }
 
     function setTurning(on) {
       if (!nodes.book) return;
       nodes.book.classList.toggle('is-turning', !!on);
-      if (on) nodes.book.style.setProperty('--flip-ms', FLIP_MS + 'ms');
+    }
+
+    function restLeaf() {
+      if (!nodes.leaf) return;
+      nodes.leaf.style.transform = '';
+      nodes.leaf.style.transition = '';
+    }
+
+    /* left = this text, leaf front = this media, leaf back = next text, under = next media */
+    function paintSpread(index) {
+      var here = slides[index];
+      var next = slides[index + 1] || null;
+      fillText(nodes.leftPage, here, index);
+      fillMedia(nodes.frontPage, here);
+      fillText(nodes.backPage, next, next ? index + 1 : index);
+      fillMedia(nodes.underPage, next || {});
+      if (nodes.book) nodes.book.setAttribute('data-index', String(index));
+      if (nodes.pageTitle) {
+        nodes.pageTitle.textContent = here ? (here.headline || here.title || '') : '';
+      }
+    }
+
+    function notifySlide(index) {
+      if (options.onSlideChange) options.onSlideChange(index, slides.length);
     }
 
     function paintSlideState(index) {
       slideIndex = index;
-      paintLeft(index);
+      cancelFlipAnim();
+      flipping = false;
+      if (nodes.book) nodes.book.classList.remove('is-hold');
       setTurning(false);
-      var pages = pageNodes();
-      var remaining = pages.length - 1 - index;
-      pages.forEach(function (page, i) {
-        page.hidden = false;
-        clearSheetClasses(page);
-        clearInlineTurn(leafOf(page));
-        if (i < index) {
-          page.classList.add('is-turned');
-        } else if (i === index) {
-          page.classList.add('is-active');
-        } else {
-          page.classList.add('is-below');
-          page.style.setProperty('--depth', String(i - index));
-        }
-        page.style.zIndex = i < index ? String(4 + i) : String(8 + remaining - (i - index));
-      });
-      if (options.onSlideChange) options.onSlideChange(index, slides.length);
+      if (nodes.book) nodes.book.classList.add('is-instant');
+      restLeaf();
+      paintSpread(index);
+      if (nodes.leaf) void nodes.leaf.offsetWidth;
+      if (nodes.book) nodes.book.classList.remove('is-instant');
+      notifySlide(index);
     }
 
     function settleFlip(index) {
       clearTimeout(flipTimer);
       flipTimer = null;
+      if (mode !== 'case') {
+        flipping = false;
+        flipAnim = null;
+        return;
+      }
+      /* Swap to the settled spread before releasing the turned pose, so the
+         browser paints angle 0 and the new faces in the same frame. */
+      if (nodes.book) nodes.book.classList.add('is-instant');
+      paintSpread(index);
+      cancelFlipAnim();
+      restLeaf();
+      slideIndex = index;
       flipping = false;
-      flipAnim = null;
       setTurning(false);
-      if (mode !== 'case') return;
-      paintSlideState(index);
+      if (nodes.book) nodes.book.classList.remove('is-hold');
+      if (nodes.leaf) void nodes.leaf.offsetWidth;
+      if (nodes.book) nodes.book.classList.remove('is-instant');
+      notifySlide(index);
     }
 
-    function turnKeyframes(fromDeg, toDeg) {
-      var dir = toDeg >= fromDeg ? 1 : -1;
-      function at(absTurn, z) {
-        return 'rotateY(' + (fromDeg + dir * absTurn) + 'deg) translateZ(' + z + 'px)';
-      }
-      /* Linear time. Hold the readable poses (70° / 110°). Rush 88–92° so the
-         leaf never parks edge-on. Z stays tiny near 90° — large Z flings the
-         projected leaf off-screen into a cream void. */
-      return [
-        { transform: at(0, 0), offset: 0 },
-        { transform: at(42, 10), offset: 0.12 },
-        { transform: at(70, 8), offset: 0.26 },
-        { transform: at(70, 8), offset: 0.38 },
-        { transform: at(82, 4), offset: 0.44 },
-        { transform: at(88, 2), offset: 0.48 },
-        { transform: at(92, 2), offset: 0.52 },
-        { transform: at(98, 4), offset: 0.56 },
-        { transform: at(110, 8), offset: 0.62 },
-        { transform: at(110, 8), offset: 0.74 },
-        { transform: at(148, 6), offset: 0.86 },
-        { transform: at(180, 0), offset: 1 }
-      ];
+    function armFlipSettle(to) {
+      clearTimeout(flipTimer);
+      flipTimer = setTimeout(function () {
+        flipTimer = null;
+        if (mode === 'case' && flipping) settleFlip(to);
+      }, FLIP_MS + 140);
+    }
+
+    /* Dwell around 70–110° so the edge, verso, and page underneath read as paper. */
+    function turnKeyframes(forward) {
+      var poses = forward
+        ? [0, -36, -70, -70, -92, -110, -110, -146, -180]
+        : [-180, -146, -110, -110, -92, -70, -70, -36, 0];
+      var offsets = [0, 0.12, 0.26, 0.40, 0.50, 0.60, 0.74, 0.88, 1];
+      return poses.map(function (deg, i) {
+        var abs = Math.abs(deg);
+        var lift = Math.sin((abs * Math.PI) / 180) * 8;
+        if (abs > 84 && abs < 100) lift = 2;
+        return {
+          transform: 'rotateY(' + deg + 'deg) translateZ(' + lift.toFixed(1) + 'px)',
+          offset: offsets[i]
+        };
+      });
     }
 
     function flipToSlide(from, to) {
-      var pages = pageNodes();
-      var current = pages[from];
-      var target = pages[to];
-      if (!current || !target) {
+      if (!nodes.leaf || !nodes.book) {
         paintSlideState(to);
         return;
       }
 
       flipping = true;
       cancelFlipAnim();
+      flipping = true;
       setTurning(true);
-      /* slideIndex + counter stay on `from` until settleFlip. */
+      /* Counter stays on `from` until settleFlip. */
 
       var forward = to > from;
-      var moving = forward ? current : target;
-      var revealing = forward ? target : current;
-      var leaf = leafOf(moving);
-      if (!leaf) {
-        paintSlideState(to);
-        return;
+      nodes.book.classList.add('is-instant');
+      nodes.book.classList.remove('is-hold');
+
+      if (forward) {
+        paintSpread(from);
+        nodes.leaf.style.transform = 'rotateY(0deg)';
+      } else {
+        /* Leaf already lies on the left: its back is the page we are leaving. */
+        fillText(nodes.leftPage, slides[to], to);
+        fillMedia(nodes.frontPage, slides[to]);
+        fillText(nodes.backPage, slides[from], from);
+        fillMedia(nodes.underPage, slides[from] || {});
+        nodes.leaf.style.transform = 'rotateY(-180deg)';
       }
+      void nodes.leaf.offsetWidth;
+      nodes.book.classList.remove('is-instant');
 
-      pages.forEach(function (page, i) {
-        page.hidden = false;
-        clearSheetClasses(page);
-        clearInlineTurn(leafOf(page));
-        if (forward) {
-          if (i < from) page.classList.add('is-turned');
-          else if (i === from) page.classList.add('is-active');
-          else {
-            page.classList.add('is-below');
-            page.style.setProperty('--depth', String(i - from));
-          }
-        } else {
-          if (i < to) page.classList.add('is-turned');
-          else if (i === to) page.classList.add('is-turned');
-          else if (i === from) page.classList.add('is-active');
-          else {
-            page.classList.add('is-below');
-            page.style.setProperty('--depth', String(i - from));
-          }
-        }
-      });
-
-      revealing.classList.add('is-receiving');
-      if (forward) revealing.classList.add('is-below');
-      revealing.classList.remove('is-turned');
-      moving.style.zIndex = '40';
-      revealing.style.zIndex = '20';
-
-      var fromDeg = forward ? 0 : -180;
-      var toDeg = forward ? -180 : 0;
-      /* Pose first, then drop is-turned — opacity on the leaf flattens 3D thickness. */
-      leaf.style.transform = 'rotateY(' + fromDeg + 'deg) translateZ(0px)';
-      moving.classList.remove('is-turned');
-      moving.classList.add('is-flipping');
-      void leaf.offsetWidth;
-
-      flipAnim = leaf.animate(turnKeyframes(fromDeg, toDeg), {
+      flipAnim = nodes.leaf.animate(turnKeyframes(forward), {
         duration: FLIP_MS,
         easing: 'linear',
         fill: 'forwards'
@@ -400,12 +326,11 @@ window.ProjectDetail = (function () {
 
       function done() {
         if (!flipping) return;
-        clearInlineTurn(leaf);
         settleFlip(to);
       }
       flipAnim.onfinish = done;
       flipAnim.addEventListener('finish', done);
-      armFlipSettle(leaf, to);
+      armFlipSettle(to);
     }
 
     function goToSlide(index, animate) {
@@ -413,10 +338,7 @@ window.ProjectDetail = (function () {
       if (flipping) return;
       var bounded = Math.max(0, Math.min(slides.length - 1, index));
       var from = slideIndex;
-      if (bounded === from) {
-        paintSlideState(bounded);
-        return;
-      }
+      if (bounded === from) return;
       var shouldAnimate = animate !== false && !reduceMotion.matches;
       if (shouldAnimate && Math.abs(bounded - from) === 1) {
         flipToSlide(from, bounded);
@@ -430,23 +352,24 @@ window.ProjectDetail = (function () {
     }
 
     function holdMidFlip() {
-      if (mode !== 'case' || slides.length < 2) return;
+      if (mode !== 'case' || slides.length < 2 || !nodes.leaf) return;
       cancelFlipAnim();
       paintSlideState(0);
-      var pages = pageNodes();
-      var current = pages[0];
-      var next = pages[1];
-      if (!current || !next) return;
-      next.classList.add('is-receiving', 'is-below');
-      next.style.zIndex = '20';
-      current.classList.add('is-flipping', 'is-hold');
-      current.style.zIndex = '40';
-      var leaf = leafOf(current);
-      if (!leaf) return;
-      leaf.style.transition = 'none';
-      /* ~70°: front + free-edge thickness readable; page beneath stays in frame. */
-      leaf.style.transform = 'rotateY(-70deg) translateZ(16px)';
+      setTurning(true);
+      nodes.book.classList.add('is-hold');
+      nodes.leaf.style.transition = 'none';
+      nodes.leaf.style.transform = 'rotateY(-84deg) translateZ(6px)';
       flipping = true;
+    }
+
+    function paintFace(project) {
+      if (nodes.coverTitle) nodes.coverTitle.textContent = project.title || '';
+      if (nodes.faceYear) nodes.faceYear.textContent = project.year || '';
+      if (nodes.coverCat) nodes.coverCat.textContent = project.category || '';
+      if (nodes.shell) {
+        if (project.tone) nodes.shell.dataset.tone = project.tone;
+        else delete nodes.shell.dataset.tone;
+      }
     }
 
     function rectOf(el) {
@@ -485,23 +408,30 @@ window.ProjectDetail = (function () {
       };
     }
 
+    function folderFrom(trigger) {
+      if (!trigger) return null;
+      if (trigger.classList && trigger.classList.contains('folder')) return trigger;
+      return trigger.closest ? trigger.closest('.folder') : null;
+    }
+
     function flyFromRail(trigger) {
       var shell = nodes.shell;
       if (!shell) return;
-      var folder = trigger && trigger.classList && trigger.classList.contains('folder')
-        ? trigger
-        : (trigger && trigger.closest ? trigger.closest('.folder') : null);
+      var folder = folderFrom(trigger);
       var src = rectOf(folder) || rectOf(trigger);
       if (!src || reduceMotion.matches) {
         panel.classList.add('is-open', 'is-flipped');
         return;
       }
 
-      /* Beat 1: open-sized shell, cover still closed, CENTER→CENTER bloom. */
+      /* Beat 1: full-size shell, cover still shut, scaled about its own center
+         so the rail folder's center lands on the book's center. */
       panel.classList.add('is-flying', 'is-open');
       panel.classList.remove('is-flipped');
       shell.style.transition = 'none';
+      shell.style.transformOrigin = '50% 50%';
       void shell.offsetWidth;
+
       var dest = rectOf(shell);
       if (!dest) {
         panel.classList.add('is-open', 'is-flipped');
@@ -510,7 +440,6 @@ window.ProjectDetail = (function () {
       }
 
       var map = centerDelta(src, dest);
-      shell.style.transformOrigin = '50% 50%';
       shell.style.zIndex = '90';
       shell.style.transform =
         'translate(' + map.x.toFixed(1) + 'px,' + map.y.toFixed(1) + 'px) scale(' +
@@ -518,76 +447,62 @@ window.ProjectDetail = (function () {
       void shell.offsetWidth;
 
       requestAnimationFrame(function () {
-        shell.style.transition =
-          'transform ' + (OPEN_MS / 1000) + 's cubic-bezier(.22,.72,.16,1)';
-        shell.style.transform = 'translate(0px, 0px) scale(1, 1)';
-      });
-
-      clearTimeout(openTimer);
-      openTimer = setTimeout(function () {
-        panel.classList.add('is-flipped');
-      }, Math.round(OPEN_MS * COVER_AT));
-
-      setTimeout(function () {
-        clearFlyStyles(shell);
-        panel.classList.remove('is-flying');
-        if (!panel.classList.contains('is-flipped')) panel.classList.add('is-flipped');
-      }, OPEN_MS + 80);
-    }
-
-    function flyToRail(trigger) {
-      var shell = nodes.shell;
-      var folder = trigger && trigger.classList && trigger.classList.contains('folder')
-        ? trigger
-        : (trigger && trigger.closest ? trigger.closest('.folder') : null);
-      if (!folder) folder = trigger;
-
-      stage.classList.add('is-returning');
-      panel.classList.remove('is-flipped');
-      panel.classList.add('hide-folder');
-
-      if (!shell || !folder || reduceMotion.matches) return;
-
-      var src = rectOf(shell);
-      shell.style.visibility = 'hidden';
-      shell.style.opacity = '0';
-
-      folder.style.visibility = 'visible';
-      folder.style.transition = 'none';
-      folder.style.transform = 'none';
-
-      requestAnimationFrame(function () {
-        var dest = rectOf(folder);
-        if (!src || !dest) return;
-        var map = centerDelta(src, dest);
-        folder.style.transformOrigin = '50% 50%';
-        folder.style.zIndex = '95';
-        folder.style.transform =
-          'translate(' + map.x.toFixed(1) + 'px,' + map.y.toFixed(1) + 'px) scale(' +
-          map.scaleX.toFixed(4) + ',' + map.scaleY.toFixed(4) + ')';
-        void folder.offsetWidth;
         requestAnimationFrame(function () {
-          folder.style.transition =
-            'transform ' + (CLOSE_MS / 1000) + 's cubic-bezier(.22,.8,.18,1)';
-          folder.style.transform = 'translate(0px, 0px) scale(1, 1)';
+          if (mode !== 'case') return;
+          shell.style.transition =
+            'transform ' + (OPEN_MS / 1000) + 's cubic-bezier(.22,.72,.16,1)';
+          shell.style.transform = 'translate(0px, 0px) scale(1, 1)';
         });
       });
 
-      setTimeout(function () {
-        folder.style.transition = '';
-        folder.style.transform = '';
-        folder.style.transformOrigin = '';
-        folder.style.zIndex = '';
-        folder.style.visibility = '';
+      clearTimeout(openTimer);
+      /* Beat 2: cover hinges only after the shell has settled at center. */
+      openTimer = setTimeout(function () {
+        openTimer = null;
+        if (mode !== 'case') return;
         clearFlyStyles(shell);
-      }, CLOSE_MS + 40);
+        panel.classList.remove('is-flying');
+        panel.classList.add('is-flipped');
+      }, OPEN_MS + 40);
+    }
+
+    function flyToRail(trigger, coverOpen) {
+      var shell = nodes.shell;
+      var folder = folderFrom(trigger) || trigger;
+      panel.classList.remove('is-flipped');
+      panel.classList.remove('is-flying');
+
+      if (!shell || !folder || reduceMotion.matches) return;
+
+      /* Cover shuts at center first. The rail copy stays hidden (is-current)
+         until the shell lands, so the return is one folder, not a ghost. */
+      var wait = coverOpen ? Math.round(COVER_MS * 0.72) : 0;
+      setTimeout(function () {
+        if (mode !== 'case' || !shell || !folder) return;
+        clearFlyStyles(shell);
+        panel.classList.add('is-open');
+        shell.style.transition = 'none';
+        shell.style.transform = 'none';
+        shell.style.transformOrigin = '50% 50%';
+        void shell.offsetWidth;
+        var src = rectOf(shell);
+        var dest = rectOf(folder);
+        if (!src || !dest) return;
+
+        var map = centerDelta(dest, src);
+        shell.style.zIndex = '95';
+        shell.style.transition =
+          'transform ' + (CLOSE_MS / 1000) + 's cubic-bezier(.22,.8,.18,1)';
+        shell.style.transform =
+          'translate(' + map.x.toFixed(1) + 'px,' + map.y.toFixed(1) + 'px) scale(' +
+          map.scaleX.toFixed(4) + ',' + map.scaleY.toFixed(4) + ')';
+      }, wait);
     }
 
     function finishHome(fromCase) {
       clearTimeout(closeTimer);
       clearTimeout(openTimer);
-      clearTimeout(flipTimer);
-      flipTimer = null;
+      openTimer = null;
       cancelFlipAnim();
       flipping = false;
       mode = 'off';
@@ -600,23 +515,34 @@ window.ProjectDetail = (function () {
       stage.classList.remove('is-detail', 'is-returning', 'rail-away', 'hero-away');
       if (nodes.card) nodes.card.hidden = true;
       clearFlyStyles(nodes.shell);
-      if (nodes.pages) nodes.pages.innerHTML = '';
-      if (nodes.leftPage) nodes.leftPage.textContent = '';
+      if (nodes.book) nodes.book.classList.remove('is-turning', 'is-hold', 'is-instant');
+      restLeaf();
+      [nodes.leftPage, nodes.frontPage, nodes.backPage, nodes.underPage].forEach(clearSlot);
       if (nodes.title) nodes.title.textContent = '';
+      if (nodes.pageTitle) nodes.pageTitle.textContent = '';
       setTurning(false);
       panel.hidden = true;
       var slots = options.slots || [];
       slots.forEach(function (slot) { slot.classList.remove('is-current'); });
+      if (lastTrigger) {
+        lastTrigger.style.visibility = '';
+        lastTrigger.style.transform = '';
+        lastTrigger.style.transition = '';
+        lastTrigger.style.transformOrigin = '';
+      }
       if (fromCase && options.onClose) options.onClose();
     }
 
     function close() {
       if (mode !== 'case') return;
       clearTimeout(closeTimer);
+      cancelFlipAnim();
+      flipping = false;
       if (!reduceMotion.matches) {
-        flyToRail(lastTrigger);
-        panel.classList.remove('is-open');
-        closeTimer = setTimeout(function () { finishHome(true); }, CLOSE_MS + 40);
+        var coverOpen = panel.classList.contains('is-flipped');
+        flyToRail(lastTrigger, coverOpen);
+        var total = (coverOpen ? Math.round(COVER_MS * 0.72) : 0) + CLOSE_MS + 70;
+        closeTimer = setTimeout(function () { finishHome(true); }, total);
         return;
       }
       panel.classList.remove('is-open', 'is-flipped');
@@ -639,6 +565,7 @@ window.ProjectDetail = (function () {
       flipping = false;
       panel.classList.remove('is-flying', 'is-home', 'hide-folder');
       stage.classList.remove('is-home', 'is-returning');
+      clearFlyStyles(nodes.shell);
 
       var slots = options.slots || [];
       var reopening = openIndex === index && mode === 'case';
@@ -648,13 +575,12 @@ window.ProjectDetail = (function () {
       openIndex = index;
       slides = slidesFor(project);
       slideIndex = 0;
-      lastTrigger = trigger || lastTrigger;
+      lastTrigger = folderFrom(trigger) || trigger || lastTrigger;
 
       if (nodes.title) nodes.title.textContent = project.title;
       panel.setAttribute('data-case', caseKey(project));
 
       paintFace(project);
-      paintPages(project);
 
       if (slots[index]) slots[index].classList.add('is-current');
       panel.hidden = false;
@@ -675,7 +601,7 @@ window.ProjectDetail = (function () {
       if (options.onOpen) options.onOpen(index, slides.length);
 
       if (/[?&]hold=flip/i.test(location.search)) {
-        var wait = reduceMotion.matches ? 80 : OPEN_MS + 160;
+        var wait = reduceMotion.matches ? 40 : OPEN_MS + COVER_MS + 80;
         setTimeout(function () {
           if (mode === 'case') holdMidFlip();
         }, wait);
@@ -698,140 +624,131 @@ window.ProjectDetail = (function () {
       return n < min ? min : n > max ? max : n;
     }
 
+    function leafAngle() {
+      if (!nodes.leaf) return 0;
+      var inline = (nodes.leaf.style.transform || '').match(/rotateY\((-?[\d.]+)deg\)/);
+      if (inline) return parseFloat(inline[1]);
+      var computed = getComputedStyle(nodes.leaf).transform;
+      if (!computed || computed === 'none') return 0;
+      /* rotateY matrix: matrix3d(cos, 0, -sin, 0,  0, 1, 0, 0,  sin, 0, cos, ...) */
+      var m = computed.match(/matrix3d\(([^)]+)\)/);
+      if (!m) return 0;
+      var p = m[1].split(',').map(parseFloat);
+      var rad = Math.atan2(p[8], p[0]);
+      return rad * (180 / Math.PI);
+    }
+
     function endDrag(commit) {
       if (!drag.tracking) return;
-      var sheet = drag.sheet;
-      var leaf = drag.leaf;
       var armed = drag.armed;
       drag.tracking = false;
-      drag.leaf = null;
-      drag.sheet = null;
-      drag.other = null;
       drag.armed = null;
-      if (!sheet || !leaf || !armed) {
+      if (!armed || armed === 'maybe' || !nodes.leaf) {
         flipping = false;
+        setTurning(false);
         return;
       }
-      try {
-        if (sheet.releasePointerCapture && drag.pointerId != null) {
-          sheet.releasePointerCapture(drag.pointerId);
-        }
-      } catch (err) {}
-
-      var current = parseFloat((leaf.style.transform.match(/rotateY\((-?[\d.]+)deg\)/) || [])[1]);
-      if (isNaN(current)) current = armed === 'forward' ? 0 : -180;
-
-      if (commit) {
-        var to = armed === 'forward' ? slideIndex + 1 : slideIndex - 1;
-        var toDeg = armed === 'forward' ? -180 : 0;
-        flipAnim = leaf.animate(turnKeyframes(current, toDeg), {
-          duration: Math.max(420, FLIP_MS * (Math.abs(toDeg - current) / 180)),
-          easing: 'linear',
-          fill: 'forwards'
-        });
-        function done() {
-          if (!flipping) return;
-          clearInlineTurn(leaf);
-          settleFlip(to);
-        }
-        flipAnim.onfinish = done;
-        flipAnim.addEventListener('finish', done);
-        armFlipSettle(leaf, to);
-      } else {
-        var backDeg = armed === 'forward' ? 0 : -180;
-        flipAnim = leaf.animate(turnKeyframes(current, backDeg), {
-          duration: 320,
-          easing: 'cubic-bezier(0.22, 0.8, 0.18, 1)',
-          fill: 'forwards'
-        });
+      var current = leafAngle();
+      var forward = armed === 'forward';
+      var to = forward ? slideIndex + 1 : slideIndex - 1;
+      if (!commit || to < 0 || to >= slides.length) {
+        flipAnim = nodes.leaf.animate(
+          [{ transform: 'rotateY(' + current.toFixed(2) + 'deg)' }, { transform: 'rotateY(' + (forward ? 0 : -180) + 'deg)' }],
+          { duration: 280, easing: 'cubic-bezier(.22,.8,.18,1)', fill: 'forwards' }
+        );
         flipAnim.onfinish = function () {
-          clearInlineTurn(leaf);
           flipping = false;
+          setTurning(false);
           paintSlideState(slideIndex);
         };
+        return;
       }
+      var rest = forward ? -180 : 0;
+      var remain = Math.abs(rest - current) / 180;
+      flipAnim = nodes.leaf.animate(
+        [{ transform: 'rotateY(' + current.toFixed(2) + 'deg)' }, { transform: 'rotateY(' + rest + 'deg)' }],
+        { duration: Math.max(320, FLIP_MS * remain), easing: 'cubic-bezier(.22,.8,.18,1)', fill: 'forwards' }
+      );
+      function done() {
+        if (!flipping) return;
+        settleFlip(to);
+      }
+      flipAnim.onfinish = done;
+      armFlipSettle(to);
     }
 
     function onPointerDown(event) {
       if (mode !== 'case' || flipping || reduceMotion.matches) return;
       if (event.button) return;
-      var sheet = event.target.closest('.sheet.is-active');
-      if (!sheet || !nodes.pages) return;
-      var rect = sheet.getBoundingClientRect();
+      if (!nodes.leaf || !event.target.closest('.book-leaf__face--front')) return;
+      var rect = nodes.leaf.getBoundingClientRect();
       var rel = (event.clientX - rect.left) / Math.max(rect.width, 1);
+      if (rel < 0.45) return;
       drag.tracking = true;
       drag.pointerId = event.pointerId;
       drag.startX = event.clientX;
-      drag.armed = rel > 0.55 ? 'forward' : (rel < 0.2 && slideIndex > 0 ? 'back' : 'maybe');
-      drag.sheet = sheet;
-      try { sheet.setPointerCapture(event.pointerId); } catch (err) {}
+      drag.armed = 'maybe';
+      try { nodes.leaf.setPointerCapture(event.pointerId); } catch (err) {}
     }
 
     function onPointerMove(event) {
-      if (!drag.tracking) return;
+      if (!drag.tracking || !nodes.leaf) return;
       var dx = event.clientX - drag.startX;
       if (drag.armed === 'maybe') {
-        if (Math.abs(dx) < 16) return;
+        if (Math.abs(dx) < 12) return;
         drag.armed = dx < 0 ? 'forward' : 'back';
-      }
-      if (drag.armed === 'forward' && slideIndex >= slides.length - 1) return;
-      if (drag.armed === 'back' && slideIndex <= 0) return;
-
-      var pages = pageNodes();
-      if (!drag.leaf) {
-        flipping = true;
-        var moving = drag.armed === 'forward' ? pages[slideIndex] : pages[slideIndex - 1];
-        var revealing = drag.armed === 'forward' ? pages[slideIndex + 1] : pages[slideIndex];
-        if (!moving) return;
-        drag.sheet = moving;
-        drag.leaf = leafOf(moving);
-        drag.other = revealing;
-        moving.classList.remove('is-turned');
-        moving.classList.add('is-flipping');
-        moving.style.zIndex = '40';
-        if (revealing) {
-          revealing.classList.add('is-receiving', 'is-below');
-          revealing.style.zIndex = '20';
+        if (drag.armed === 'forward' && slideIndex >= slides.length - 1) {
+          drag.armed = 'maybe';
+          return;
         }
-        if (drag.leaf) drag.leaf.style.transition = 'none';
+        if (drag.armed === 'back' && slideIndex <= 0) {
+          drag.armed = 'maybe';
+          return;
+        }
+        flipping = true;
+        setTurning(true);
+        nodes.book.classList.add('is-instant');
+        if (drag.armed === 'back') {
+          var prev = slideIndex - 1;
+          fillText(nodes.leftPage, slides[prev], prev);
+          fillMedia(nodes.frontPage, slides[prev]);
+          fillText(nodes.backPage, slides[slideIndex], slideIndex);
+          fillMedia(nodes.underPage, slides[slideIndex] || {});
+          nodes.leaf.style.transform = 'rotateY(-180deg)';
+        }
+        void nodes.leaf.offsetWidth;
+        nodes.book.classList.remove('is-instant');
       }
-      if (!drag.leaf) return;
-      var pageW = (drag.sheet && drag.sheet.getBoundingClientRect().width)
-        || ((nodes.pages.getBoundingClientRect().width || 800) / 2);
+      if (drag.armed !== 'forward' && drag.armed !== 'back') return;
+      var pageW = nodes.leaf.getBoundingClientRect().width || 320;
       var progress = drag.armed === 'forward'
         ? clamp(-dx / pageW, 0, 1)
         : clamp(dx / pageW, 0, 1);
       var deg = drag.armed === 'forward' ? progress * -180 : -180 + progress * 180;
-      var abs = Math.abs(deg);
-      var z = Math.sin(abs * Math.PI / 180) * 8;
-      if (abs > 80 && abs < 100) z = 2;
-      drag.leaf.style.transform = 'rotateY(' + deg.toFixed(2) + 'deg) translateZ(' + z.toFixed(1) + 'px)';
+      nodes.leaf.style.transform = 'rotateY(' + deg.toFixed(2) + 'deg)';
     }
 
     function onPointerUp(event) {
       if (!drag.tracking) return;
       var dx = event.clientX - drag.startX;
-      var pageW = (drag.sheet && drag.sheet.getBoundingClientRect().width)
-        || ((nodes.pages && nodes.pages.getBoundingClientRect().width || 800) / 2);
+      var pageW = (nodes.leaf && nodes.leaf.getBoundingClientRect().width) || 320;
       var progress = drag.armed === 'forward'
         ? clamp(-dx / pageW, 0, 1)
         : clamp(dx / pageW, 0, 1);
       var commit = progress > 0.28 || Math.abs(dx) > 72;
-      if (drag.armed === 'maybe' || !drag.leaf) {
+      if (drag.armed === 'maybe') {
         drag.tracking = false;
         flipping = false;
         return;
       }
-      if (drag.armed === 'forward' && slideIndex >= slides.length - 1) commit = false;
-      if (drag.armed === 'back' && slideIndex <= 0) commit = false;
       endDrag(commit);
     }
 
-    if (nodes.pages) {
-      nodes.pages.addEventListener('pointerdown', onPointerDown);
-      nodes.pages.addEventListener('pointermove', onPointerMove);
-      nodes.pages.addEventListener('pointerup', onPointerUp);
-      nodes.pages.addEventListener('pointercancel', onPointerUp);
+    if (nodes.leaf) {
+      nodes.leaf.addEventListener('pointerdown', onPointerDown);
+      nodes.leaf.addEventListener('pointermove', onPointerMove);
+      nodes.leaf.addEventListener('pointerup', onPointerUp);
+      nodes.leaf.addEventListener('pointercancel', function () { if (drag.tracking) endDrag(false); });
     }
 
     document.addEventListener('keydown', function (event) {

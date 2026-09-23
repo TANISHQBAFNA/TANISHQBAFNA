@@ -14,7 +14,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Montserrat:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap"
     rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/landing.css?v=flipbook13" />
+  <link rel="stylesheet" href="assets/css/landing.css?v=flipbook14" />
 </head>
 
 <body class="landing">
@@ -100,20 +100,18 @@
           <span data-case-face-year></span>
         </div>
 
-        <div class="case-folder__book" data-case-book>
-          <div class="case-folder__panel case-folder__panel--left" data-case-left>
-            <div class="case-folder__lining case-page case-page--text" data-left-page></div>
+        <div class="case-folder__book" data-case-book data-page data-index="0">
+          <div class="book-spread">
+            <div class="book-page book-page--left case-page case-page--text" data-left-page></div>
+            <div class="book-page book-page--under" data-under-page></div>
+          </div>
+          <div class="book-leaf" data-leaf>
+            <div class="book-leaf__face book-leaf__face--front" data-front-page></div>
+            <div class="book-leaf__face book-leaf__face--back" data-back-page></div>
+            <span class="book-leaf__edge" aria-hidden="true"></span>
           </div>
           <div class="case-folder__spine" aria-hidden="true"></div>
-          <div class="case-folder__panel case-folder__panel--right">
-            <div class="case-folder__edge" aria-hidden="true">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <!-- Full-spread leaf stack: sheets are half-width, hinged at the spine. -->
-          <div class="case-folder__pages" data-case-pages>
-            <!-- dual-face sheets injected from project.slides -->
-          </div>
+          <span class="visually-hidden" data-page-title></span>
         </div>
 
         <div class="case-folder__cover" data-case-cover aria-hidden="true">
@@ -239,7 +237,7 @@
   <script src="assets/js/project-data.js?v=flipbook13" defer></script>
   <script src="assets/js/folder-card.js?v=flipbook13" defer></script>
   <script src="assets/js/project-rail.js?v=flipbook13" defer></script>
-  <script src="assets/js/project-detail.js?v=flipbook13" defer></script>
+  <script src="assets/js/project-detail.js?v=flipbook14" defer></script>
   <script src="assets/js/landing.js?v=flipbook13" defer></script>
 </body>
 

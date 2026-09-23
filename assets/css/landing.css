@@ -3376,6 +3376,7 @@ body:has(.stage.is-detail:has(.detail--folder)) .atmosphere {
   padding: calc(var(--head-h) + 18px) var(--gutter) 96px;
   z-index: 70;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
   background:
     radial-gradient(70% 55% at 50% 42%, rgba(0, 0, 0, 0.45), transparent 72%),
@@ -3459,6 +3460,7 @@ body:has(.stage.is-detail:has(.detail--folder)) .atmosphere {
 
 .detail--folder.is-flying .case-folder__shell {
   transition: none;
+  transform-origin: 50% 50%;
   will-change: transform;
 }
 
@@ -3547,77 +3549,43 @@ body:has(.stage.is-detail:has(.detail--folder)) .atmosphere {
   color: var(--manila-ink);
 }
 
-/* ── Open book ───────────────────────────────────────────────────────── */
+/* ── Open book: one leaf hinged at the spine ───────────────────────── */
 .case-folder__book {
   position: absolute;
   inset: 14px 12px 12px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   opacity: 0;
   pointer-events: none;
+  perspective: 2400px;
+  perspective-origin: 50% 46%;
+  overflow: visible;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  perspective: 4200px;
-  perspective-origin: 50% 45%;
-  overflow: visible;
-  transition: opacity 0.2s ease;
 }
 .detail--folder.is-flipped .case-folder__book {
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 0.4s ease 0.08s;
 }
 
-.case-folder__panel {
-  position: relative;
+.book-spread {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: visible;
+  border-radius: 3px;
+  background: var(--sheet);
+}
+
+.book-page {
   min-width: 0;
   min-height: 0;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.18), transparent 28%),
-    var(--manila-2);
-  box-shadow: inset 0 0 0 1px rgba(60, 40, 15, 0.08);
+  position: relative;
 }
-
-.case-folder__panel--left {
-  border-radius: 3px 0 0 3px;
-  overflow: hidden;
-  z-index: 2;
-}
-.case-folder__panel--right {
-  border-radius: 0 3px 3px 0;
-  overflow: visible;
-  z-index: 1;
-  /* Paper lives in the leaf stack — keep this panel from occluding mid-turn. */
-  background: transparent;
-  box-shadow: none;
-}
-
-.case-folder__spine {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 18px;
-  margin-left: -9px;
-  z-index: 8;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.16),
-    rgba(0, 0, 0, 0.03) 42%,
-    rgba(255, 255, 255, 0.16) 50%,
-    rgba(0, 0, 0, 0.05) 58%,
-    rgba(0, 0, 0, 0.14)
-  );
-  box-shadow: 0 0 14px rgba(0, 0, 0, 0.1);
-}
-
-.case-folder__lining {
-  height: 100%;
-  min-height: 0;
+.book-page--left {
   overflow: auto;
+  border-radius: 3px 0 0 3px;
   background:
-    linear-gradient(270deg, rgba(60, 40, 15, 0.08), transparent 18px),
+    linear-gradient(270deg, rgba(60, 40, 15, 0.1), transparent 22px),
     repeating-linear-gradient(
       180deg,
       var(--sheet-back) 0,
@@ -3625,286 +3593,143 @@ body:has(.stage.is-detail:has(.detail--folder)) .atmosphere {
       rgba(80, 55, 20, 0.05) 28px
     );
 }
-
-/* Remaining-sheet thickness on the right edge */
-.case-folder__edge {
-  position: absolute;
-  right: -7px;
-  top: 10px;
-  bottom: 10px;
-  width: 7px;
-  z-index: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  pointer-events: none;
-}
-.case-folder__edge span {
-  background: #efe4cc;
-  border-right: 1px solid rgba(80, 55, 20, 0.18);
-  box-shadow: 1px 0 0 rgba(255, 255, 255, 0.35) inset;
-}
-.case-folder__edge span:nth-child(2) { background: #e8d8b6; }
-.case-folder__edge span:nth-child(3) { background: #dfcda4; }
-
-.case-folder__pages {
-  position: absolute;
-  inset: 8px 10px;
-  z-index: 12;
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
-  perspective: 4200px;
-  perspective-origin: 50% 45%;
-  overflow: visible;
-  pointer-events: none;
-}
-.case-folder__book.is-turning { overflow: visible; }
-.case-folder__book.is-turning .case-folder__spine { z-index: 6; }
-.case-folder__pages::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 50%;
-  z-index: 0;
-  border-radius: 0 2px 2px 0;
+.book-page--under {
+  overflow: hidden;
+  border-radius: 0 3px 3px 0;
   background:
-    linear-gradient(90deg, rgba(60, 40, 15, 0.08), transparent 16px),
+    linear-gradient(90deg, rgba(60, 40, 15, 0.08), transparent 18px),
     var(--sheet);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset;
-  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 40, 15, 0.06),
+    8px 0 0 #e7d7b4,
+    12px 0 0 #dcc59a,
+    16px 0 0 #c9ae7c;
+}
+.book-page--under .case-page--media,
+.book-leaf__face--front .case-page--media {
+  height: 100%;
 }
 
-/* ── Dual-face sheets (half-width leaves, hinged at book spine) ──────── */
-.sheet {
+/* The only moving page. Right half, hinge on the spine, free to swing
+   across the whole book — ancestors stay overflow:visible. */
+.book-leaf {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 50%;
   width: 50%;
-  overflow: visible;
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.sheet.is-below { z-index: 2; }
-.sheet.is-active {
-  z-index: 14;
-  pointer-events: auto;
-}
-.sheet.is-turned {
-  z-index: 3;
-  pointer-events: none;
-}
-.sheet.is-flipping {
-  z-index: 40;
-  pointer-events: none;
-}
-.sheet.is-receiving {
-  z-index: 20;
-  pointer-events: none;
-}
-
-.sheet__leaf {
-  position: absolute;
-  inset: 0;
-  overflow: visible;
-  transform-origin: left center; /* spine */
+  z-index: 5;
+  transform-origin: left center;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
   transform: rotateY(0deg);
-  border-radius: 0 2px 2px 0;
-  background: transparent;
-  box-shadow: 0 10px 28px -18px rgba(40, 24, 8, 0.35);
+  pointer-events: none;
+  will-change: transform;
+}
+.detail--folder.is-flipped .book-leaf { pointer-events: auto; }
+.case-folder__book.is-instant .book-leaf {
+  transition: none !important;
+  animation: none !important;
 }
 
-.sheet.is-turned .sheet__leaf {
-  transform: rotateY(-180deg);
-  visibility: hidden;
-}
-
-.sheet.is-flipping .sheet__leaf {
-  visibility: visible;
-  box-shadow:
-    16px 10px 36px -10px rgba(40, 24, 8, 0.48),
-    0 0 0 1px rgba(80, 55, 20, 0.12);
-}
-
-.sheet.is-below .sheet__leaf {
-  transform:
-    rotateY(0deg)
-    translate3d(calc(var(--depth, 1) * 2px), calc(var(--depth, 1) * 2px), 0);
-}
-
-.sheet__face {
+.book-leaf__face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
-  transform-style: preserve-3d;
+  background: var(--sheet);
 }
-
-.sheet__face--front {
+.book-leaf__face--front {
+  border-radius: 0 3px 3px 0;
   background:
-    linear-gradient(90deg, rgba(60, 40, 15, 0.1), transparent 18px),
+    linear-gradient(90deg, rgba(60, 40, 15, 0.12), transparent 16px),
     var(--sheet);
-  border-radius: 0 2px 2px 0;
   box-shadow:
-    10px 0 32px -16px rgba(40, 24, 8, 0.4),
-    0 1px 0 rgba(255, 255, 255, 0.65) inset,
-    inset -3px 0 0 rgba(90, 65, 25, 0.16);
+    inset -3px 0 0 rgba(90, 65, 25, 0.16),
+    0 1px 0 rgba(255, 255, 255, 0.65) inset;
 }
-
-.sheet__face--back {
+.book-leaf__face--back {
   transform: rotateY(180deg);
+  border-radius: 3px 0 0 3px;
   background:
-    linear-gradient(270deg, rgba(60, 40, 15, 0.1), transparent 18px),
+    linear-gradient(270deg, rgba(60, 40, 15, 0.12), transparent 18px),
     repeating-linear-gradient(
       180deg,
-      var(--sheet-back) 0,
-      var(--sheet-back) 27px,
-      rgba(80, 55, 20, 0.05) 28px
+      #f4e6cc 0,
+      #f4e6cc 27px,
+      rgba(80, 55, 20, 0.06) 28px
     );
-  border-radius: 2px 0 0 2px;
-  box-shadow: -10px 0 32px -16px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 3px 0 0 rgba(90, 65, 25, 0.12);
 }
-
-.sheet__verso {
+.book-leaf__face .case-page {
   height: 100%;
-  display: grid;
-  place-items: center;
+  background: transparent;
 }
 
-.sheet__folio {
-  font-family: var(--font-display);
-  font-size: 42px;
-  letter-spacing: 0.08em;
-  color: rgba(42, 36, 24, 0.28);
-}
-
-/* Free-edge thickness: a plane standing off the right edge. At ~90° this
-   faces the camera as a paper edge while the receiving page stays in view. */
-.sheet__thickness {
+/* Fore-edge slab. At ~90° it faces the camera as paper thickness. */
+.book-leaf__edge {
   position: absolute;
-  top: -1px;
-  bottom: -1px;
-  right: 0;
-  width: 22px;
-  transform-origin: right center;
-  transform: rotateY(90deg);
-  background:
-    repeating-linear-gradient(
-      180deg,
-      #efe0c4 0px,
-      #d9c194 3px,
-      #c4a56e 5px,
-      #b39058 6px
-    );
-  box-shadow:
-    inset 1px 0 0 rgba(255, 255, 255, 0.55),
-    inset -2px 0 0 rgba(70, 50, 20, 0.4),
-    10px 0 28px rgba(40, 24, 8, 0.4);
-  backface-visibility: visible;
-  -webkit-backface-visibility: visible;
-  pointer-events: none;
-  z-index: 7;
-}
-
-/* Spine-side catch light while the leaf is turning */
-.sheet.is-flipping .sheet__leaf::before {
-  content: "";
-  position: absolute;
-  left: -1px;
   top: 0;
   bottom: 0;
-  width: 6px;
-  background:
-    linear-gradient(90deg, rgba(70, 50, 20, 0.55), #d7c49a 35%, #efe2c2 70%, rgba(255,255,255,0.4));
-  box-shadow: 0 0 12px rgba(40, 24, 8, 0.28);
-  transform: translateZ(1px);
-  z-index: 8;
+  right: 0;
+  width: 18px;
+  transform-origin: right center;
+  transform: rotateY(90deg) translateZ(0.5px);
+  background: repeating-linear-gradient(
+    180deg,
+    #f3e4c8 0px,
+    #e4cfa6 2px,
+    #c9a56c 4px,
+    #b08a50 5px
+  );
+  box-shadow:
+    inset 1px 0 0 rgba(255, 255, 255, 0.55),
+    inset -2px 0 0 rgba(70, 50, 20, 0.45);
   pointer-events: none;
-  backface-visibility: hidden;
 }
 
-/* Lighting wash on the turning face — darkens as it approaches edge-on */
-.sheet.is-flipping .sheet__leaf::after {
+.case-folder__book.is-turning .book-leaf__face--front {
+  box-shadow:
+    inset -3px 0 0 rgba(90, 65, 25, 0.16),
+    14px 16px 28px -8px rgba(40, 24, 8, 0.45);
+}
+.case-folder__book.is-turning .book-page--under::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 4;
   pointer-events: none;
-  z-index: 5;
   background: linear-gradient(
     90deg,
-    rgba(40, 24, 8, 0.42),
-    transparent 22%,
-    transparent 62%,
-    rgba(40, 24, 8, 0.18)
+    rgba(40, 24, 8, 0.34),
+    rgba(40, 24, 8, 0.08) 36%,
+    transparent 68%
   );
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  animation: leaf-shade var(--flip-ms, 1.24s) linear forwards;
 }
 
-@keyframes leaf-shade {
-  0% { opacity: 0.12; }
-  26% { opacity: 0.42; }
-  38% { opacity: 0.48; }
-  50% { opacity: 0.62; }
-  62% { opacity: 0.4; }
-  74% { opacity: 0.36; }
-  100% { opacity: 0.08; }
-}
-
-/* Shadow on the page beneath — keep the receiving media readable */
-.sheet.is-receiving::before {
-  content: "";
+/* Gutter shade. Sits under the leaf so it cannot hide the hinge. */
+.case-folder__spine {
   position: absolute;
-  inset: 0;
-  z-index: 12;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  margin-left: -7px;
+  z-index: 2;
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    rgba(40, 24, 8, 0.28),
-    rgba(40, 24, 8, 0.08) 32%,
-    transparent 64%
+    rgba(0, 0, 0, 0.14),
+    rgba(0, 0, 0, 0.02) 42%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(0, 0, 0, 0.04) 58%,
+    rgba(0, 0, 0, 0.12)
   );
-  animation: sheet-unshade var(--flip-ms, 1.24s) linear forwards;
 }
 
-@keyframes sheet-unshade {
-  0% { opacity: 0.35; }
-  26% { opacity: 0.7; }
-  38% { opacity: 0.78; }
-  50% { opacity: 0.28; }
-  62% { opacity: 0.55; }
-  74% { opacity: 0.42; }
-  100% { opacity: 0; }
-}
-
-.sheet.is-hold.is-flipping .sheet__leaf::after,
-.sheet.is-hold.is-flipping .sheet__leaf::before {
-  animation: none;
-  opacity: 1;
-}
-
-.case-folder__pages:has(.sheet.is-hold) .sheet.is-receiving::before {
-  animation: none;
-  opacity: 0.62;
-}
-
-/* Grab the right edge to peel the sheet */
-.sheet.is-active .sheet__face--front {
-  cursor: grab;
-  touch-action: pan-y;
-  pointer-events: auto;
-}
-.sheet.is-active .sheet__face--front:active {
-  cursor: grabbing;
-}
+.book-leaf__face--front { cursor: grab; touch-action: pan-y; }
+.book-leaf__face--front:active { cursor: grabbing; }
 
 /* ── Page content ────────────────────────────────────────────────────── */
 .case-page {
@@ -4089,7 +3914,7 @@ body:has(.stage.is-detail:has(.detail--folder)) .atmosphere {
     width: min(100vw - 20px, 560px);
     height: min(78svh, 640px);
   }
-  .case-folder__book {
+  .book-spread {
     grid-template-columns: 0.42fr 1fr;
   }
   .case-page__sticky {
@@ -4120,19 +3945,11 @@ body:has(.stage.is-detail:has(.detail--folder)) .atmosphere {
   .case-folder__cover,
   .case-folder__book,
   .case-folder__shell,
-  .sheet__leaf,
-  .sheet.is-receiving::before {
+  .book-leaf {
     transition: none !important;
     animation: none !important;
   }
-  .sheet.is-flipping .sheet__leaf::after,
-  .sheet.is-flipping .sheet__leaf::before,
-  .sheet.is-receiving::before {
-    display: none;
-  }
-  .sheet__thickness {
-    display: none;
-  }
+  .book-leaf__edge { display: none; }
   .detail--folder.is-flipped .case-folder__cover {
     transform: none;
     opacity: 0;
