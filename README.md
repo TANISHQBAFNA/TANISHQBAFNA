@@ -9,7 +9,7 @@ Product & UX designer based in Mumbai. I work on design systems, HCI, and tools 
 ## Building
 
 <p align="center">
-  <a href="https://github.com/TANISHQBAFNA/keyline"><img src="assets/card-keyline.svg" alt="Keyline — map of your Figma components for AI agents. Resolve a master, get a short usage card, place the right thing." width="400" /></a>
+  <a href="https://github.com/TANISHQBAFNA/resolve"><img src="assets/card-resolve.svg" alt="Resolve — Figma rules. Agents resolve. You set design rules; AI agents pick the right components without dumping the whole file." width="400" /></a>
   <a href="https://github.com/TANISHQBAFNA/Portfolio"><img src="assets/card-portfolio.svg" alt="Portfolio — selected product and UX work at tanishqbafna.com" width="400" /></a>
 </p>
 
