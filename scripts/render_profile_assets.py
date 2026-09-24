@@ -206,11 +206,12 @@ def work_card(
   <path d="M 364 24 L 372 32 L 364 40" fill="none" stroke="{TEAL}" stroke-width="1.2" stroke-linecap="square" stroke-linejoin="miter"/>
 """
     _ = kicker_w
+    title_stop = "" if title.endswith((".", "!", "?")) else "."
     return svg_doc(
         392,
         124,
         label,
-        f"{title}. {line1} {line2}",
+        f"{title}{title_stop} {line1} {line2}",
         body,
     )
 
@@ -223,15 +224,15 @@ def main() -> None:
     mono = OutlineFont(JB_MONO)
 
     header = header_svg(inter_semi, inter_reg, mono)
-    keyline = work_card(
+    resolve = work_card(
         inter_med,
         inter_reg,
         mono,
-        "KEYLINE",
-        "Figma map for AI agents",
-        "Resolve a master. Get a short usage card.",
-        "Place the right thing — not a new system.",
-        "Keyline",
+        "RESOLVE",
+        "Figma rules. Agents resolve.",
+        "You set design rules.",
+        "Agents pick the right components — not the whole file.",
+        "Resolve",
     )
     portfolio = work_card(
         inter_med,
@@ -245,10 +246,10 @@ def main() -> None:
     )
 
     (ASSETS / "header.svg").write_text(header)
-    (ASSETS / "card-keyline.svg").write_text(keyline)
+    (ASSETS / "card-resolve.svg").write_text(resolve)
     (ASSETS / "card-portfolio.svg").write_text(portfolio)
     print("wrote", ASSETS / "header.svg")
-    print("wrote", ASSETS / "card-keyline.svg")
+    print("wrote", ASSETS / "card-resolve.svg")
     print("wrote", ASSETS / "card-portfolio.svg")
 
 
