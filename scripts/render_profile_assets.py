@@ -26,7 +26,6 @@ MUTE = "#A8AAA8"
 TEAL = "#6AA8A2"
 
 INTER_REG = "/usr/share/fonts/truetype/macos/Inter-Regular.ttf"
-INTER_MED = "/usr/share/fonts/truetype/macos/Inter-Medium.ttf"
 INTER_SEMI = "/usr/share/fonts/truetype/macos/Inter-SemiBold.ttf"
 JB_MONO = "/usr/share/fonts/truetype/macos/JetBrainsMono-Regular.ttf"
 
@@ -181,8 +180,21 @@ def header_svg(inter_semi: OutlineFont, inter_reg: OutlineFont, mono: OutlineFon
     )
 
 
+# Product-card chrome. Slightly lifted from the header void so the pair
+# reads as surfaces on GitHub's light page, not extra black boxes.
+CARD_W = 400
+CARD_H = 176
+CARD_RX = 12
+CARD_PAD = 28
+CARD_EDGE = "#3A4048"
+CARD_TOP = "#1C2126"
+CARD_MID = "#15181C"
+CARD_BOT = "#101214"
+SHEEN = "#E8E6E3"
+
+
 def work_card(
-    inter_med: OutlineFont,
+    inter_semi: OutlineFont,
     inter_reg: OutlineFont,
     mono: OutlineFont,
     kicker: str,
@@ -190,26 +202,77 @@ def work_card(
     line1: str,
     line2: str,
     label: str,
+    line2_fill: str = MUTE,
 ) -> str:
-    kicker_w = mono.width(kicker, 11, tracking=1.6)
-    title_size = 16
+    slug = "".join(ch for ch in kicker.lower() if ch.isalnum())
+    kicker_size = 10.5
+    title_size = 18
     body_size = 12.5
+    kicker_w = mono.width(kicker, kicker_size, tracking=1.8)
+    title_w = inter_semi.width(title, title_size, tracking=-0.35)
+    line1_w = inter_reg.width(line1, body_size)
+    line2_w = inter_reg.width(line2, body_size)
+
+    # Header-synced square with a quiet chevron — the click affordance.
+    mark_size = 22
+    mark_x = CARD_W - CARD_PAD - mark_size
+    mark_y = 24
+    chev_cx = mark_x + mark_size / 2 + 0.5
+    chev_cy = mark_y + mark_size / 2
+    title_max = mark_x - CARD_PAD - 12
+    body_max = CARD_W - CARD_PAD * 2
+    if title_w > title_max or line1_w > body_max or line2_w > body_max:
+        raise ValueError(
+            f"{label} copy overflow: title {title_w:.1f}/{title_max:.1f}, "
+            f"line1 {line1_w:.1f}/{body_max:.1f}, line2 {line2_w:.1f}/{body_max:.1f}"
+        )
+    tick_w = max(16.0, min(24.0, kicker_w * 0.32))
 
     body = f"""
-  <rect width="392" height="124" fill="{FIELD}"/>
-  <rect x="0.5" y="0.5" width="391" height="123" fill="none" stroke="{HAIRLINE}" stroke-width="1"/>
-  <rect x="0" y="0" width="2" height="124" fill="{TEAL}"/>
-    {mono.paths(kicker, 20, 32, 11, TEAL, tracking=1.6)}
-    {inter_med.paths(title, 20, 58, title_size, INK)}
-    {inter_reg.paths(line1, 20, 86, body_size, MUTE)}
-    {inter_reg.paths(line2, 20, 104, body_size, MUTE)}
-  <path d="M 364 24 L 372 32 L 364 40" fill="none" stroke="{TEAL}" stroke-width="1.2" stroke-linecap="square" stroke-linejoin="miter"/>
+  <defs>
+    <linearGradient id="fill-{slug}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="{CARD_TOP}"/>
+      <stop offset="52%" stop-color="{CARD_MID}"/>
+      <stop offset="100%" stop-color="{CARD_BOT}"/>
+    </linearGradient>
+    <radialGradient id="wash-{slug}" cx="88%" cy="8%" r="62%">
+      <stop offset="0%" stop-color="{TEAL}" stop-opacity="0.13"/>
+      <stop offset="100%" stop-color="{TEAL}" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sheen-{slug}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="{SHEEN}" stop-opacity="0.08"/>
+      <stop offset="22%" stop-color="{SHEEN}" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid-{slug}" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="{SHEEN}" stroke-width="0.4" opacity="0.045"/>
+    </pattern>
+    <clipPath id="clip-{slug}">
+      <rect x="0.5" y="0.5" width="{CARD_W - 1}" height="{CARD_H - 1}" rx="{CARD_RX}"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#clip-{slug})">
+    <rect width="{CARD_W}" height="{CARD_H}" fill="url(#fill-{slug})"/>
+    <rect width="{CARD_W}" height="{CARD_H}" fill="url(#wash-{slug})"/>
+    <rect width="{CARD_W}" height="{CARD_H}" fill="url(#grid-{slug})"/>
+    <rect width="{CARD_W}" height="{CARD_H}" fill="url(#sheen-{slug})"/>
+  </g>
+  <rect x="0.5" y="0.5" width="{CARD_W - 1}" height="{CARD_H - 1}" rx="{CARD_RX}" fill="none" stroke="{CARD_EDGE}" stroke-width="1"/>
+  <rect x="1.5" y="1.5" width="{CARD_W - 3}" height="{CARD_H - 3}" rx="{CARD_RX - 1}" fill="none" stroke="{SHEEN}" stroke-opacity="0.07" stroke-width="1"/>
+
+    {mono.paths(kicker, CARD_PAD, 42, kicker_size, TEAL, tracking=1.8)}
+  <rect x="{CARD_PAD}" y="50" width="{tick_w:.1f}" height="1.25" fill="{TEAL}" opacity="0.9"/>
+    {inter_semi.paths(title, CARD_PAD, 84, title_size, INK, tracking=-0.35)}
+    {inter_reg.paths(line1, CARD_PAD, 112, body_size, MUTE)}
+    {inter_reg.paths(line2, CARD_PAD, 132, body_size, line2_fill)}
+
+  <rect x="{mark_x}" y="{mark_y}" width="{mark_size}" height="{mark_size}" fill="none" stroke="{HAIRLINE}" stroke-width="1"/>
+  <path d="M {chev_cx - 3.5:.1f} {chev_cy - 5:.1f} L {chev_cx + 3.5:.1f} {chev_cy} L {chev_cx - 3.5:.1f} {chev_cy + 5:.1f}" fill="none" stroke="{TEAL}" stroke-width="1.2" stroke-linecap="square" stroke-linejoin="miter"/>
 """
-    _ = kicker_w
     title_stop = "" if title.endswith((".", "!", "?")) else "."
     return svg_doc(
-        392,
-        124,
+        CARD_W,
+        CARD_H,
         label,
         f"{title}{title_stop} {line1} {line2}",
         body,
@@ -219,13 +282,12 @@ def work_card(
 def main() -> None:
     ASSETS.mkdir(exist_ok=True)
     inter_reg = OutlineFont(INTER_REG)
-    inter_med = OutlineFont(INTER_MED)
     inter_semi = OutlineFont(INTER_SEMI)
     mono = OutlineFont(JB_MONO)
 
     header = header_svg(inter_semi, inter_reg, mono)
     resolve = work_card(
-        inter_med,
+        inter_semi,
         inter_reg,
         mono,
         "RESOLVE",
@@ -235,7 +297,7 @@ def main() -> None:
         "Resolve",
     )
     portfolio = work_card(
-        inter_med,
+        inter_semi,
         inter_reg,
         mono,
         "PORTFOLIO",
@@ -243,6 +305,7 @@ def main() -> None:
         "Case studies in product and interaction.",
         "tanishqbafna.com",
         "Portfolio",
+        line2_fill=TEAL,
     )
 
     (ASSETS / "header.svg").write_text(header)
