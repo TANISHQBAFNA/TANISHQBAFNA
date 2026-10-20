@@ -1,36 +1,14 @@
-<p align="center">
-  <img src="assets/header.svg" alt="Tanishq Bafna — Product and UX designer, Mumbai. Design systems, HCI, AI + Figma." width="800" />
-</p>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/hero-dark.svg"><img src="assets/v2/hero-light.svg" alt="Tanishq Bafna, product and UX designer in Mumbai. Design systems, HCI, AI and Figma. Illustration: library parts flowing into a phone screen." width="100%"></picture>
 
-Product & UX designer based in Mumbai. I work on design systems, HCI, and tools that help AI build UI from real Figma libraries — without inventing a new system every time.
 
-**Site:** [tanishqbafna.com](https://www.tanishqbafna.com)
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/projects-dark.svg"><img src="assets/v2/projects-light.svg" alt="Three project cards: Resolve, a Figma and AI plugin that checks screens; Portfolio, an SME banking case study; Rewind TV, a channel-flipping smart TV web app." width="100%"></picture>
 
-## Building
+<p align="center"><a href="https://github.com/TANISHQBAFNA/resolve">Resolve</a> · <a href="https://www.tanishqbafna.com">Portfolio</a> · <a href="https://github.com/TANISHQBAFNA/rewind-tv">Rewind TV</a></p>
 
-<p align="center">
-  <a href="https://github.com/TANISHQBAFNA/resolve"><img src="assets/card-resolve.svg" alt="Resolve — Figma rules. Agents resolve. You set design rules; AI agents pick the right components without dumping the whole file." width="400" /></a>
-  <a href="https://github.com/TANISHQBAFNA/Portfolio"><img src="assets/card-portfolio.svg" alt="Portfolio — selected product and UX work at tanishqbafna.com" width="400" /></a>
-</p>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/how-dark.svg"><img src="assets/v2/how-light.svg" alt="How I work: listen, systemise, build with AI, check." width="100%"></picture>
 
-## Focus
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/skills-dark.svg"><img src="assets/v2/skills-light.svg" alt="Tools: Figma, design systems, prototyping, Claude Code, Cursor, Codex, HTML/CSS/JS, TypeScript." width="100%"></picture>
 
-- Design systems & component libraries
-- AI-assisted design workflows (Claude, Cursor, Codex + Figma)
-- Clear product craft — humans set the rules, tools follow them
+<a href="https://www.tanishqbafna.com"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/contact-dark.svg"><img src="assets/v2/contact-light.svg" alt="Contact: website tanishqbafna.com, LinkedIn, Behance." width="100%"></picture></a>
 
-## Signal
-
-<!-- Live cards via github-readme-stats.shion.dev (official vercel.app is often paused). Colors match assets/. -->
-<p align="center">
-  <img src="https://github-readme-stats.shion.dev/api?username=TANISHQBAFNA&show_icons=true&hide_rank=true&hide=contribs,issues&bg_color=111315&title_color=6AA8A2&icon_color=6AA8A2&text_color=C8C6C2&border_color=2C3036&border_radius=4&custom_title=Activity&card_width=400" alt="GitHub activity: stars, commits, and pull requests" />
-  <img src="https://github-readme-stats.shion.dev/api/top-langs/?username=TANISHQBAFNA&layout=compact&langs_count=5&bg_color=111315&title_color=6AA8A2&text_color=C8C6C2&border_color=2C3036&border_radius=4&card_width=400" alt="Most used languages on GitHub" />
-</p>
-
-## Elsewhere
-
-[tanishqbafna.com](https://www.tanishqbafna.com) · [LinkedIn](https://www.linkedin.com/in/tanishqbafna/) · [Behance](https://www.behance.net/tanishqbafna)
-
----
-
-*Open to conversations about design systems, product UX, and AI tooling for designers.*
+<p align="center"><a href="https://www.tanishqbafna.com">Website</a> · <a href="https://www.linkedin.com/in/tanishqbafna/">LinkedIn</a> · <a href="https://www.behance.net/tanishqbafna">Behance</a></p>
