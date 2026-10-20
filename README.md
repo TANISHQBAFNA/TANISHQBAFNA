@@ -1,36 +1,17 @@
-<p align="center">
-  <img src="assets/header.svg" alt="Tanishq Bafna — Product and UX designer, Mumbai. Design systems, HCI, AI + Figma." width="800" />
-</p>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/hero-anim-dark.svg"><img src="assets/v2/hero-anim-light.svg" alt="Tanishq Bafna, product and UX designer in Mumbai. Design systems, HCI, AI and Figma. Illustration: library parts flowing into a phone screen." width="100%"></picture>
 
-Product & UX designer based in Mumbai. I work on design systems, HCI, and tools that help AI build UI from real Figma libraries — without inventing a new system every time.
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/building-dark.svg"><img src="assets/v2/building-light.svg" alt="What I am building" width="100%"></picture>
 
-**Site:** [tanishqbafna.com](https://www.tanishqbafna.com)
+<a href="https://github.com/TANISHQBAFNA/resolve"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/band-resolve-dark.svg"><img src="assets/v2/band-resolve-light.svg" alt="Resolve, a Figma and AI plugin: tells AI which real Figma parts to use, then checks the screen. Shows a check result: components pass, proper use fails." width="100%"></picture></a>
 
-## Building
+<a href="https://www.tanishqbafna.com"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/sme-anim-dark.svg"><img src="assets/v2/sme-anim-light.svg" alt="SME banking, a portfolio case study: a bank app that grows with a small business. Two phone screens with a paid invoice and a Nudge client button." width="100%"></picture></a>
 
-<p align="center">
-  <a href="https://github.com/TANISHQBAFNA/resolve"><img src="assets/card-resolve.svg" alt="Resolve — Figma rules. Agents resolve. You set design rules; AI agents pick the right components without dumping the whole file." width="400" /></a>
-  <a href="https://github.com/TANISHQBAFNA/Portfolio"><img src="assets/card-portfolio.svg" alt="Portfolio — selected product and UX work at tanishqbafna.com" width="400" /></a>
-</p>
+<a href="https://github.com/TANISHQBAFNA/rewind-tv"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/band-tv-dark.svg"><img src="assets/v2/band-tv-light.svg" alt="Rewind TV, a smart TV web app: flip channels like old TV. Shows a channel guide on a TV." width="100%"></picture></a>
 
-## Focus
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/how-anim-dark.svg"><img src="assets/v2/how-anim-light.svg" alt="How I work: 1 Listen to the people who use it, 2 Solve: come up with solutions, and systems where they help, 3 Build with AI: turn it into a real screen, 4 Check: test and fix before it ships. Steps light up in order, each with a small picture." width="100%"></picture>
 
-- Design systems & component libraries
-- AI-assisted design workflows (Claude, Cursor, Codex + Figma)
-- Clear product craft — humans set the rules, tools follow them
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/skills-dark.svg"><img src="assets/v2/skills-light.svg" alt="Tools: Figma, design systems, prototyping, Claude Code, Cursor, Codex, HTML/CSS/JS, TypeScript." width="100%"></picture>
 
-## Signal
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/contact-dark.svg"><img src="assets/v2/contact-light.svg" alt="Contact: website tanishqbafna.com, LinkedIn, Behance." width="100%"></picture>
 
-<!-- Live cards via github-readme-stats.shion.dev (official vercel.app is often paused). Colors match assets/. -->
-<p align="center">
-  <img src="https://github-readme-stats.shion.dev/api?username=TANISHQBAFNA&show_icons=true&hide_rank=true&hide=contribs,issues&bg_color=111315&title_color=6AA8A2&icon_color=6AA8A2&text_color=C8C6C2&border_color=2C3036&border_radius=4&custom_title=Activity&card_width=400" alt="GitHub activity: stars, commits, and pull requests" />
-  <img src="https://github-readme-stats.shion.dev/api/top-langs/?username=TANISHQBAFNA&layout=compact&langs_count=5&bg_color=111315&title_color=6AA8A2&text_color=C8C6C2&border_color=2C3036&border_radius=4&card_width=400" alt="Most used languages on GitHub" />
-</p>
-
-## Elsewhere
-
-[tanishqbafna.com](https://www.tanishqbafna.com) · [LinkedIn](https://www.linkedin.com/in/tanishqbafna/) · [Behance](https://www.behance.net/tanishqbafna)
-
----
-
-*Open to conversations about design systems, product UX, and AI tooling for designers.*
+<p align="center"><a href="https://www.tanishqbafna.com">Website</a> · <a href="https://www.linkedin.com/in/tanishqbafna/">LinkedIn</a> · <a href="https://www.behance.net/tanishqbafna">Behance</a></p>
