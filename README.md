@@ -1,4 +1,4 @@
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/hero-anim-dark.svg"><img src="assets/v2/hero-anim-light.svg" alt="Tanishq Bafna, product and UX designer in Mumbai. Design systems, HCI, AI and Figma. Illustration: library parts flowing into a phone screen." width="100%"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/header-b-dark.svg"><img src="assets/v2/header-b-light.svg" alt="Tanishq Bafna. Product &amp; UX designer, Mumbai. I design products and build them with AI." width="100%"></picture>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/building-dark.svg"><img src="assets/v2/building-light.svg" alt="What I am building" width="100%"></picture>
 
