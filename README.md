@@ -8,7 +8,7 @@
 
 <a href="https://github.com/TANISHQBAFNA/rewind-tv"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/band-tv-dark.svg"><img src="assets/v2/band-tv-light.svg" alt="Rewind TV, a smart TV web app: flip channels like old TV. Shows a channel guide on a TV." width="100%"></picture></a>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/how-dark.svg"><img src="assets/v2/how-light.svg" alt="How I work: 1 Listen to the people who use it, 2 Systemise needs into parts and rules, 3 Build with AI from the real library, 4 Check the screen before it ships." width="100%"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/how-dark.svg"><img src="assets/v2/how-light.svg" alt="How I work: 1 Listen to the people who use it, 2 Solve: come up with solutions, and systems where they help, 3 Build with AI: AI turns the solution into a real screen, 4 Check the screen before it ships." width="100%"></picture>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/skills-dark.svg"><img src="assets/v2/skills-light.svg" alt="Tools: Figma, design systems, prototyping, Claude Code, Cursor, Codex, HTML/CSS/JS, TypeScript." width="100%"></picture>
 
