@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600"><style>@keyframes a{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(-1deg)}}@keyframes b{0%,100%{transform:translateY(-10px) rotate(0)}50%{transform:translateY(4px) rotate(1deg)}}@keyframes s{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}.a{animation:a 5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.b{animation:b 5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.s1{animation:s 5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.s2{animation:s 5s ease-in-out infinite reverse;transform-box:fill-box;transform-origin:center}@media (prefers-reduced-motion: reduce){*{animation:none!important}}text{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}</style>
+<rect width="1200" height="600" rx="24" fill="#0E2F2C"/>
+<ellipse class="s1" cx="210" cy="560" rx="140" ry="18" fill="#000000" fill-opacity="0.5"/>
+<ellipse class="s2" cx="510" cy="560" rx="140" ry="18" fill="#000000" fill-opacity="0.5"/>
+<g class="a"><g transform="translate(70,70)"><g transform="skewY(-6)">
+ <rect x="18" y="10.799999999999999" width="270" height="490" rx="40" fill="#164D47"/>
+ <rect x="9.0" y="5.3999999999999995" width="270" height="490" rx="40" fill="#1F6F66"/>
+ <rect x="0" y="0" width="270" height="490" rx="40" fill="#0D1117" stroke="#5EEAD4" stroke-width="4"/>
+ <rect x="95.0" y="16" width="80" height="10" rx="5" fill="#C9D1D9"/>
+ <path d="M24 30 Q81.0 10 210 40" stroke="#FFFFFF" stroke-opacity=".25" stroke-width="10" fill="none" stroke-linecap="round"/>
+ <text x="28" y="80" font-size="30" font-weight="700" fill="#F0F6FC">Hi Aisha</text>
+<text x="28" y="120" font-size="28" fill="#C9D1D9">Client paid?</text>
+<rect x="22" y="150" width="226" height="80" rx="14" fill="#161B22" stroke="#5EEAD4" stroke-width="2"/><text x="42" y="200" font-size="28" font-weight="700" fill="#F0F6FC">Bill</text>
+<rect x="112" y="170" width="120" height="42" rx="21" fill="#2DD4BF" stroke="#0D1117" stroke-width="2"/><text x="172" y="200" font-size="28" font-weight="700" text-anchor="middle" fill="#0D1117">Paid</text>
+<rect x="22" y="250" width="226" height="80" rx="14" fill="#161B22" stroke="#5EEAD4" stroke-width="2"/><text x="42" y="300" font-size="28" font-weight="700" fill="#F0F6FC">Bill</text>
+<rect x="22" y="400" width="226" height="70" rx="14" fill="#2DD4BF" stroke="#0D1117" stroke-width="2"/><text x="135" y="445" font-size="28" font-weight="700" text-anchor="middle" fill="#0D1117">Nudge client</text></g></g></g>
+<g class="b"><g transform="translate(380,50)"><g transform="skewY(-6)">
+ <rect x="18" y="10.799999999999999" width="270" height="490" rx="40" fill="#164D47"/>
+ <rect x="9.0" y="5.3999999999999995" width="270" height="490" rx="40" fill="#1F6F66"/>
+ <rect x="0" y="0" width="270" height="490" rx="40" fill="#0D1117" stroke="#5EEAD4" stroke-width="4"/>
+ <rect x="95.0" y="16" width="80" height="10" rx="5" fill="#C9D1D9"/>
+ <path d="M24 30 Q81.0 10 210 40" stroke="#FFFFFF" stroke-opacity=".25" stroke-width="10" fill="none" stroke-linecap="round"/>
+ <text x="28" y="80" font-size="30" font-weight="700" fill="#F0F6FC">Team view</text>
+<text x="28" y="120" font-size="28" fill="#C9D1D9">Client paid?</text>
+<rect x="22" y="150" width="226" height="80" rx="14" fill="#161B22" stroke="#5EEAD4" stroke-width="2"/><text x="42" y="200" font-size="28" font-weight="700" fill="#F0F6FC">Bill</text>
+<rect x="112" y="170" width="120" height="42" rx="21" fill="#2DD4BF" stroke="#0D1117" stroke-width="2"/><text x="172" y="200" font-size="28" font-weight="700" text-anchor="middle" fill="#0D1117">Paid</text>
+<rect x="22" y="250" width="226" height="80" rx="14" fill="#161B22" stroke="#5EEAD4" stroke-width="2"/><text x="42" y="300" font-size="28" font-weight="700" fill="#F0F6FC">Bill</text>
+<rect x="22" y="400" width="226" height="70" rx="14" fill="#2DD4BF" stroke="#0D1117" stroke-width="2"/><text x="135" y="445" font-size="28" font-weight="700" text-anchor="middle" fill="#0D1117">Nudge client</text></g></g></g>
+<text x="730" y="230" font-size="64" font-weight="700" fill="#F0F6FC">SME banking</text>
+<text x="730" y="278" font-size="30" font-weight="700" fill="#F0F6FC">Portfolio case study</text>
+<text x="730" y="340" font-size="28" fill="#C9D1D9">A bank app that grows with a</text>
+<text x="730" y="378" font-size="28" fill="#C9D1D9">small business, phone to team.</text>
+</svg>
