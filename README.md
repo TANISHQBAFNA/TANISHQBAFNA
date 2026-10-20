@@ -4,7 +4,7 @@
 
 <a href="https://github.com/TANISHQBAFNA/resolve"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/band-resolve-dark.svg"><img src="assets/v2/band-resolve-light.svg" alt="Resolve, a Figma and AI plugin: tells AI which real Figma parts to use, then checks the screen. Shows a check result: components pass, proper use fails." width="100%"></picture></a>
 
-<a href="https://www.tanishqbafna.com"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/band-sme-dark.svg"><img src="assets/v2/band-sme-light.svg" alt="SME banking, a portfolio case study: a bank app that grows with a small business. Two phone screens with a paid invoice and a Nudge client button." width="100%"></picture></a>
+<a href="https://infoviz-cs5764.web.app/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/band-infoviz-dark.svg"><img src="assets/v2/band-infoviz-light.svg" alt="Housing story, an info vis scroll story in D3.js: Virginia and Mumbai homes, told as a 15-step scroll story. Shows a frame of the story with a county map and its price panel." width="100%"></picture></a>
 
 <a href="https://github.com/TANISHQBAFNA/rewind-tv"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/v2/band-tv-dark.svg"><img src="assets/v2/band-tv-light.svg" alt="Rewind TV, a smart TV web app: flip channels like old TV. Shows a channel guide on a TV." width="100%"></picture></a>
 
